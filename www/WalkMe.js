@@ -25,23 +25,27 @@ var exec = require('cordova/exec');
  * Provides Android Integration w/ WalkMe.
  */
 module.exports = {
-    sendGoal : function() {
-        var nativeArgs = [];
+  sendGoal: function() {
+    var nativeArgs = [];
 
-        if(arguments.length === 0 || typeof arguments[0] === "undefined" || arguments[0].length === 0) {
-            return false;
-        } else {
-            nativeArgs.unshift(arguments[0]);
-        }
-
-        if (arguments.length > 1 && typeof arguments[1] === "object") {
-            nativeArgs.push(arguments[1]);
-        }
-
-        if (nativeArgs.length > 0) {
-            exec(null, null, 'WalkMe', 'sendGoal', nativeArgs);
-        } else {
-            return false;
-        }
+    if (
+      arguments.length === 0 ||
+      typeof arguments[0] === 'undefined' ||
+      arguments[0].length === 0
+    ) {
+      return false;
+    } else {
+      nativeArgs.unshift(arguments[0]);
     }
+
+    if (arguments.length > 1 && typeof arguments[1] === 'object') {
+      nativeArgs.push(arguments[1]);
+    }
+
+    if (nativeArgs.length > 0) {
+      exec(null, null, 'WalkMe', 'sendGoal', nativeArgs);
+    } else {
+      return false;
+    }
+  }
 };
