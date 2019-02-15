@@ -15,5 +15,4 @@ FOUNDATION_EXPORT double WalkMeSDKVersionNumber;
 FOUNDATION_EXPORT const unsigned char WalkMeSDKVersionString[];
 
 #import <WalkMeSDK/ABBI.h>
-#import <WalkMeSDK/WMCampaignInfo.h>
-#import <WalkMeSDK/WMUserData.h>
+
