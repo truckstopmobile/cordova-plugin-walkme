@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "WMCampaignInfo.h"
 
 /**
  * Enum to Support Hybrid iOS apps (i.e. webview based apps)
@@ -28,23 +29,47 @@
 typedef enum {ABBI_APP_NATIVE = 10, ABBI_APP_HYBRID = 11, ABBI_APP_COCOS2D = 12, ABBI_APP_UNITY = 13, ABBI_APP_MAX = 14} ABBIAppType;
 typedef enum {GOAL = 1} EventType;
 
+extern NSString *SDK_VERSION;
+
+/**
+ * Interface definition for a callback to be invoked in Campaign actions.
+ */
+@protocol WMCampaignInfoDelegate <NSObject>
+
+/**
+ * Called after campaign was dismissed.
+ *
+ * @param campaignInfo The dismissed campaign info.
+ */
+- (void)campaignDidDismiss:(WMCampaignInfo *)campaignInfo;
+
+@end
+
 /**
 * ABBI class manages the execution of ABBI SDK.
-* Navigate to https://console.abbi.io to Register/Login and Manage Your Promotions
-* For support, drop us an email at Support@abbi.io
+* Navigate to https://console.mobile.walkme.com to Register/Login and Manage Your Promotions
+* For support, drop us an email at support@walkme.com
 */
 @interface ABBI : NSObject
+
+@property (nonatomic,weak) id<WMCampaignInfoDelegate> campaignInfoDelegate;
 
 /** 
  * Starts ABBI SDK.
  *
- * @param appId The Application Id provided by ABBI
- * @param appSecretKey The Application Secret key provided by ABBI
+ * @param appId The Application Id provided by WalkMe
+ * @param appSecretKey The Application Secret key provided by WalkMe
  * 
- * To get your Application Id and Application Secret key, login to Abbi console at https://console.abbi.io
- * and click the settings icon near your Application Name. You can find more info here - https://abbi.zendesk.com/hc
+ * To get your Application Id and Application Secret key, login to WalkMe console at https://console.mobile.walkme.com
+ * and click the settings icon near your Application Name. You can find more info here - https://walkme-mobile.zendesk.com/hc
  */
 + (void)start:(NSString *)appId withSecretKey:(NSString *)appSecretKey;
+
+/**
+ * Restarts a new SDK session
+ *
+ */
++ (void)restart;
 
 /** 
  * Starts ABBI SDK - FOR HYBRID APPS ONLY!
@@ -53,8 +78,6 @@ typedef enum {GOAL = 1} EventType;
  * @param appSecretKey The Application Secret key provided by ABBI
  * @param type The Application Type (i.e. ABBI_APP_HYBRID)
  *
- * To get your Application Id and Application Secret key, login to Abbi console at https://console.abbi.io
- * and click the settings icon near your Application Name. You can find more info here - https://abbi.zendesk.com/hc
  */
 + (void)start:(NSString *)appId withSecretKey:(NSString *)appSecretKey andApplicationType:(ABBIAppType)type;
 
@@ -71,16 +94,6 @@ typedef enum {GOAL = 1} EventType;
  * @param properties the Goal properties, key-value structured (if any).
  */
 + (void)sendGoal:(NSString *)goalName withProperites:(NSDictionary *)properties;
-
-/**
- * Deprecated. Please use setUserAttributeWithKey:andValue: instead.
- */
-+ (void)setUserDataKey:(NSString*)key withValue:(NSString*)value DEPRECATED_MSG_ATTRIBUTE("use setUserAttributeWithKey:andValue:");
-
-/**
- * Deprecated. Please use setUserAttributes: instead.
- */
-+ (void)setUserDataProperties:(NSDictionary<NSString*,NSString*>*)properties DEPRECATED_MSG_ATTRIBUTE("use setUserAttributes:");
 
 /**
  * Sets a user attribute
@@ -150,7 +163,45 @@ typedef enum {GOAL = 1} EventType;
  * Usage Example :
  * [ABBI trigger:@"Show How To Order Credit Card"];
  */
-+ (void)trigger:(NSString *)myTriggerName;
++ (void)trigger:(NSString *)trigger;
 
+/**
+ * Launches a campaign by trigger key after redirecting the user to the given deep link
+ * Once invoked, the method will show the campaign WITHOUT any of its segments (if defined)
+ *
+ * @code
+ * Usage Example :
+ * [ABBI trigger:@"Show How To Order Credit Card" withDeepLink:@"myapp://main_screen"];
+ */
++ (void)trigger:(NSString*)trigger withDeepLink:(NSString*)deepLink;
+
+/**
+ * Sets user id
+ *
+ * @param userId the user id as NSString
+ *
+ * @code
+ * Usage Example:
+ * [ABBI setUserID:@"myuserid"];
+ */
++ (void)setUserID:(NSString*)userId;
+
+/**
+ * Register a delegate to campaign events
+ *
+ *@param delegate The delegate
+ *
+ */
++ (void)setCampaignInfoDelegate:(id<WMCampaignInfoDelegate>)delegate;
+
+/**
+ * Opens a URL
+ *
+ *@param url the URL that should be handled by the SDK
+ *@param options the options received from the app delegate "application:openURL:options:" method
+ *@return true if the SDK handled the openURL request successfully
+ *
+ */
++ (BOOL)openURL:(NSURL*)url options:(NSDictionary*)options;
 
 @end
