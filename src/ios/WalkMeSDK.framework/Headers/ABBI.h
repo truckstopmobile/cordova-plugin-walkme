@@ -19,31 +19,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "WMCampaignInfo.h"
-
-/**
- * Enum to Support Hybrid iOS apps (i.e. webview based apps)
- * Use - (void) start: (NSString*) appId withSecretKey: (NSString*) appSecretKey andApplicationType:(ABBIAppType) type;
- *
- */
-typedef enum {ABBI_APP_NATIVE = 10, ABBI_APP_HYBRID = 11, ABBI_APP_COCOS2D = 12, ABBI_APP_UNITY = 13, ABBI_APP_MAX = 14} ABBIAppType;
-typedef enum {GOAL = 1} EventType;
+#import "WMStartOptions.h"
 
 extern NSString *SDK_VERSION;
-
-/**
- * Interface definition for a callback to be invoked in Campaign actions.
- */
-@protocol WMCampaignInfoDelegate <NSObject>
-
-/**
- * Called after campaign was dismissed.
- *
- * @param campaignInfo The dismissed campaign info.
- */
-- (void)campaignDidDismiss:(WMCampaignInfo *)campaignInfo;
-
-@end
 
 /**
 * ABBI class manages the execution of ABBI SDK.
@@ -66,8 +44,10 @@ extern NSString *SDK_VERSION;
 + (void)start:(NSString *)appId withSecretKey:(NSString *)appSecretKey;
 
 /**
- * Restarts a new SDK session
+ * Restarts ABBI SDK.
  *
+ * This method can be called only after ABBI start was called first.
+ * Restart ABBI SDK is allowed if old session is at least 1 minute old
  */
 + (void)restart;
 
@@ -80,6 +60,32 @@ extern NSString *SDK_VERSION;
  *
  */
 + (void)start:(NSString *)appId withSecretKey:(NSString *)appSecretKey andApplicationType:(ABBIAppType)type;
+
+/**
+ * Starts ABBI SDK - FOR SELF-HOSTED APPS ONLY!
+ *
+ * @param appId The Application Id provided by ABBI
+ * @param appSecretKey The Application Secret key provided by ABBI
+ * @param url the self hosted url
+ *
+ */
++ (void)start:(NSString *)appId withSecretKey:(NSString *)appSecretKey andSelfHostedURL:(NSString *)url;
+
+/**
+ * Starts ABBI SDK!
+ *
+ * @param options The options to start the SDK 
+ *
+ */
++ (void)startWithOptions:(WMStartOptions *)options;
+
+/**
+ * Stop ABBI SDK.
+ *
+ * This method can be called only after ABBI start was called first.
+ * Stop abbi SDK is allowed if old session is at least 1 minute old
+ */
++ (void)stop;
 
 /**
  * Sends a Goal to ABBI's Backend.
@@ -189,7 +195,7 @@ extern NSString *SDK_VERSION;
 /**
  * Register a delegate to campaign events
  *
- *@param delegate The delegate
+ * @param delegate The delegate
  *
  */
 + (void)setCampaignInfoDelegate:(id<WMCampaignInfoDelegate>)delegate;
@@ -197,11 +203,41 @@ extern NSString *SDK_VERSION;
 /**
  * Opens a URL
  *
- *@param url the URL that should be handled by the SDK
- *@param options the options received from the app delegate "application:openURL:options:" method
- *@return true if the SDK handled the openURL request successfully
+ * @param url the URL that should be handled by the SDK
+ * @param options the options received from the app delegate "application:openURL:options:" method
+ * @return true if the SDK handled the openURL request successfully
  *
  */
 + (BOOL)openURL:(NSURL*)url options:(NSDictionary*)options;
+
+/**
+ * Set events that won't be sent
+ *
+ * @param events of type WMStatsEventType that won't be sent
+ *
+ * @code
+ * Usage Example :
+ * [ABBI setEventsFilter:@[@(WMStatsEventTypeInteraction), @(WMStatsEventTypeViewTransition)]];
+ *
+ */
++ (void)setEventsFilter:(NSArray<NSNumber*>*)events;
+
+/**
+ * Set ID for a specific screen.
+ * When used, this should be called everytime the screen shows
+ *
+ * @param screenID the ID to set for a specific screen
+ *
+ */
++ (void)setScreenID:(NSString *)screenID;
+
+/**
+ * Set the language for your campaigns.
+ * When used, the language param you pass should match the name of one of the languages you’ve set up in the console.
+ *
+ * @param language the language for which you want the SDK to display your campaigns
+ *
+ */
++ (void)setLanguage:(NSString *)language;
 
 @end
